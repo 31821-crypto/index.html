@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>數學解題助手 - 通用方程式求解器</title>
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --text-main: #1e293b;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-orange: #f59e0b;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .container {
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 500px;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+            letter-spacing: -0.025em;
+        }
+
+        .formula-display {
+            background: #f8fafc;
+            padding: 1.25rem;
+            border-radius: 1rem;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            min-height: 1.5em;
+            color: #334155;
+            border: 2px solid #e2e8f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .reset-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-reset {
+            background-color: #fee2e2;
+            color: var(--accent-red);
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-reset:hover {
+            background-color: #fecaca;
+            transform: scale(1.05);
+        }
+
+        .control-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .control-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .label {
+            font-size: 1.25rem;
+            font-weight: 800;
+            width: 30px;
+            color: var(--primary-color);
+            font-style: italic;
+        }
+
+        .btn-group {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        button.adjust {
+            border: none;
+            background: #f1f5f9;
+            color: #475569;
+            padding: 10px 14px;
+            border-radius: 0.6rem;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 700;
+            transition: all 0.2s;
+        }
+
+        button.adjust:hover {
+            background: #e2e8f0;
+            transform: scale(1.05);
+        }
+
+        button.adjust.plus { color: var(--accent-green); }
+        button.adjust.minus { color: var(--accent-red); }
+
+        input.coeff-input {
+            width: 65px;
+            text-align: center;
+            border: 2px solid #f1f5f9;
+            background: #f8fafc;
+            padding: 10px;
+            border-radius: 0.6rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .result-panel {
+            border-top: 2px dashed #e2e8f0;
+            padding-top: 1.5rem;
+        }
+
+        .result-title {
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            display: block;
+            color: #475569;
+        }
+
+        .solution-box {
+            background: #fdfdfd;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            border: 1px solid #e2e8f0;
+            line-height: 2.8;
+            font-size: 1.2rem;
+            color: #334155;
+        }
+
+        .fraction {
+            display: inline-flex;
+            flex-direction: column;
+            vertical-align: middle;
+            align-items: center;
+            padding: 0 6px;
+        }
+        .frac-top { border-bottom: 2px solid #1e293b; padding: 0 4px; line-height: 1.1; }
+        .frac-bottom { line-height: 1.4; }
+
+        .type-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            background: #e0e7ff;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .solution-main { font-weight: 700; color: var(--primary-color); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>數學解題助手</h1>
+    <div id="equationView" class="formula-display">0 = 0</div>
+
+    <div class="reset-container">
+        <button class="btn-reset" onclick="resetAll()">
+            <span>🔄 全部歸零</span>
+        </button>
+    </div>
+
+    <div class="control-list">
+        <!-- 係數 a -->
+        <div class="control-item">
+            <span class="label">a</span>
+            <div class="btn-group">
+                <button class="adjust minus" onclick="step('a', -10)">-10</button>
+                <button class="adjust minus" onclick="step('a', -1)">-1</button>
+                <input type="number" id="input_a" class="coeff-input" value="1" oninput="calculate()">
+                <button class="adjust plus" onclick="step('a', 1)">+1</button>
+                <button class="adjust plus" onclick="step('a', 10)">+10</button>
+            </div>
+        </div>
+        <!-- 係數 b -->
+        <div class="control-item">
+            <span class="label">b</span>
+            <div class="btn-group">
+                <button class="adjust minus" onclick="step('b', -10)">-10</button>
+                <button class="adjust minus" onclick="step('b', -1)">-1</button>
+                <input type="number" id="input_b" class="coeff-input" value="0" oninput="calculate()">
+                <button class="adjust plus" onclick="step('b', 1)">+1</button>
+                <button class="adjust plus" onclick="step('b', 10)">+10</button>
+            </div>
+        </div>
+        <!-- 係數 c -->
+        <div class="control-item">
+            <span class="label">c</span>
+            <div class="btn-group">
+                <button class="adjust minus" onclick="step('c', -10)">-10</button>
+                <button class="adjust minus" onclick="step('c', -1)">-1</button>
+                <input type="number" id="input_c" class="coeff-input" value="0" oninput="calculate()">
+                <button class="adjust plus" onclick="step('c', 1)">+1</button>
+                <button class="adjust plus" onclick="step('c', 10)">+10</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="result-panel">
+        <span class="result-title">✨ 計算結果：</span>
+        <div id="solution" class="solution-box">請調整參數...</div>
+    </div>
+</div>
+
+<script>
+    function resetAll() {
+        document.getElementById('input_a').value = 0;
+        document.getElementById('input_b').value = 0;
+        document.getElementById('input_c').value = 0;
+        calculate();
+    }
+
+    function step(id, val) {
+        const el = document.getElementById('input_' + id);
+        el.value = parseInt(el.value || 0) + val;
+        calculate();
+    }
+
+    function gcd(a, b) {
+        a = Math.abs(a); b = Math.abs(b);
+        while (b) { a %= b; [a, b] = [b, a]; }
+        return a;
+    }
+
+    function simplifyRadical(n) {
+        let out = 1, ins = n, d = 2;
+        while (d * d <= ins) {
+            if (ins % (d * d) === 0) {
+                out *= d; ins /= (d * d);
+            } else { d++; }
+        }
+        return [out, ins];
+    }
+
+    function calculate() {
+        const a = parseInt(document.getElementById('input_a').value) || 0;
+        const b = parseInt(document.getElementById('input_b').value) || 0;
+        const c = parseInt(document.getElementById('input_c').value) || 0;
+
+        // 方程式預覽顯示
+        let eqText = "";
+        if (a !== 0) eqText += (a === 1 ? "" : (a === -1 ? "-" : a)) + "x² ";
+        if (b !== 0) eqText += (b > 0 ? (eqText ? "+ " : "") : "- ") + (Math.abs(b) === 1 && a !== 0 ? "" : Math.abs(b)) + "x ";
+        if (c !== 0) eqText += (c > 0 ? (eqText ? "+ " : "") : "- ") + Math.abs(c) + " ";
+        if (!eqText) eqText = "0 ";
+        document.getElementById('equationView').innerText = eqText + "= 0";
+
+        const solBox = document.getElementById('solution');
+        let html = "";
+
+        // 邏輯判斷：一元二次 or 一元一次
+        if (a !== 0) {
+            // 一元二次方程式
+            html += `<span class="type-badge">一元二次方程式</span>`;
+            const D = b * b - 4 * a * c;
+            const den = 2 * a;
+            html += `<div style="color:#64748b; font-size:0.9rem">判別式 D = ${D}</div>`;
+
+            if (D === 0) {
+                html += `<div class="solution-main">重根：<br>x = ` + renderFraction(-b, den) + `</div>`;
+            } else if (D > 0) {
+                const [out, ins] = simplifyRadical(D);
+                html += `<div class="solution-main">相異實根：<br>` + formatSolution(-b, out, ins, den, "") + `</div>`;
+            } else {
+                const [out, ins] = simplifyRadical(-D);
+                html += `<div class="solution-main">共軛虛根：<br>` + formatSolution(-b, out, ins, den, "i") + `</div>`;
+            }
+        } else if (b !== 0) {
+            // 一元一次方程式 (bx + c = 0 -> x = -c/b)
+            html += `<span class="type-badge" style="background:#fef3c7; color:#b45309">一元一次方程式</span>`;
+            html += `<div class="solution-main">唯一實根：<br>x = ` + renderFraction(-c, b) + `</div>`;
+        } else {
+            // 恆等式或矛盾
+            if (c === 0) {
+                html += `<div style="color:var(--accent-green)">恆等式：0 = 0 (無限多解)</div>`;
+            } else {
+                html += `<div style="color:var(--accent-red)">矛盾：${c} = 0 (無解)</div>`;
+            }
+        }
+
+        solBox.innerHTML = html;
+    }
+
+    function formatSolution(minusB, out, ins, den, unit) {
+        if (ins === 1 && unit === "") {
+            const x1_num = minusB + out;
+            const x2_num = minusB - out;
+            return `x₁ = ${renderFraction(x1_num, den)}<br>x₂ = ${renderFraction(x2_num, den)}`;
+        }
+        const common = gcd(minusB, gcd(out, den));
+        const b_final = minusB / common, out_final = out / common, den_final = den / common;
+        const outStr = (out_final === 1) ? "" : out_final;
+        const rootPart = (ins === 1) ? "" : `√${ins}`;
+        const numStr = `${b_final} ± ${outStr}${rootPart}${unit}`;
+
+        if (Math.abs(den_final) === 1) {
+            return `x = ${den_final === -1 ? `-( ${numStr} )` : numStr}`;
+        } else {
+            return `x = <span class="fraction"><span class="frac-top">${den_final < 0 ? `-( ${numStr} )` : numStr}</span><span class="frac-bottom">${Math.abs(den_final)}</span></span>`;
+        }
+    }
+
+    function renderFraction(num, den) {
+        if (num === 0) return "0";
+        const common = gcd(num, den);
+        let n = num / common, d = den / common;
+        if (d < 0) { n = -n; d = -d; }
+        if (d === 1) return n;
+        return `<span class="fraction"><span class="frac-top">${n}</span><span class="frac-bottom">${d}</span></span>`;
+    }
+
+    calculate();
+</script>
+
+</body>
+</html>
